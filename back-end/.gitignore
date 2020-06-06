@@ -1,0 +1,7 @@
+node_modules
+
+.env
+yarn-error.log
+
+/src/app/database/database.sqlite
+/src/app/database/database_test.sqlite
