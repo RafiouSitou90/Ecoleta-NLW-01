@@ -17,11 +17,19 @@ class PointsController {
             .distinct()
             .select('points.*');
 
+        const serializePoints = points.map(point => {
+            return {
+                ...point,
+                image_url:
+                    `${process.env.APP_SERVER}:${process.env.APP_PORT}/${process.env.APP_UPLOADS_DIR}/${point.image}`
+            };
+        });
+
         return res.status(200).json({
             status: 200,
             statusText: 'Ok',
             message: 'Points loaded successfully',
-            points
+            points: serializePoints
         })
     }
 
@@ -40,12 +48,15 @@ class PointsController {
             longitude,
             city,
             state,
-            image: 'https://images.unsplash.com/photo-1548148870-adbf75452257?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60'
+            image: req.file.filename
         }
 
         const [id] = await trx('points').insert(point);
 
-        const pointItems = await items.map((item_id: number) => {
+        const pointItems = await items
+            .split(',')
+            .map((item: string) => Number(item.trim()))
+            .map((item_id: number) => {
             return {
                 point_id: id,
                 item_id,
@@ -88,6 +99,11 @@ class PointsController {
             })
         }
 
+        const serializePoint = {
+            ...point,
+            image_url: `${process.env.APP_SERVER}:${process.env.APP_PORT}/${process.env.APP_UPLOADS_DIR}/${point.image}`
+        };
+
         const items = await DBConnection.table('items')
             .join('point_items', 'items.id', '=', 'point_items.item_id')
             .where('point_items.point_id', id).select('items.title')
@@ -96,7 +112,8 @@ class PointsController {
             status: 200,
             statusText: 'Ok',
             message: 'Point loaded successfully',
-            point, items
+            point: serializePoint,
+            items
         })
     }
 }
