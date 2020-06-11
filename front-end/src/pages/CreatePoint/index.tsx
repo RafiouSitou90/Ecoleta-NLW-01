@@ -46,7 +46,6 @@ const CreatePoint = () => {
 
     useEffect(() => {
         api.get('items').then(response => {
-            console.log(response.data)
             setItems(response.data.items);
         })
     }, []);
@@ -142,6 +141,8 @@ const CreatePoint = () => {
 
             <form onSubmit={handleSubmit}>
                 <h1>Register a <br/> collection point</h1>
+
+                <Dropzone onFileUploaded={setSelectedFile} />
 
                 <fieldset>
                     <legend>
