@@ -9,6 +9,7 @@ import api from '../../services/axios';
 
 import './styles.css'
 import logo from '../../assets/logo.svg';
+import Dropzone from '../../components/Dropzone';
 
 interface Item {
     id: number;
@@ -32,6 +33,7 @@ const CreatePoint = () => {
     const [selectedState, setSelectedState] = useState('0');
     const [selectedCity, setSelectedCity] = useState('0');
     const [selectedItems, setSelectedItems] = useState<number[]>([]);
+    const [selectedFile, setSelectedFile] = useState<File>();
 
     const [initialPosition, setInitialPosition] = useState<[number, number]>([0, 0]);
     const [selectedPosition, setSelectedPosition] = useState<[number, number]>([0, 0]);
@@ -113,15 +115,20 @@ const CreatePoint = () => {
 
         const { name, email, whatsapp } = formData;
         const [latitude, longitude] = selectedPosition;
-        const data = {
-            name,
-            email,
-            whatsapp,
-            latitude,
-            longitude,
-            state: selectedState,
-            city: selectedCity,
-            items: selectedItems
+
+        const data = new FormData()
+
+        data.append('name', name)
+        data.append('email', email)
+        data.append('whatsapp', whatsapp)
+        data.append('latitude', String(latitude))
+        data.append('longitude', String(longitude))
+        data.append('state', selectedState)
+        data.append('city', selectedCity)
+        data.append('items', selectedItems.join(','))
+
+        if (selectedFile) {
+            data.append('image', selectedFile)
         }
 
         await api.post('points', data);
